@@ -1,12 +1,14 @@
 #Bibliotecas
 import cv2
 import face_recognition as fc
+import os
 
 #Lista de pessoas conhecidas com uma pasta de mesmo nome
-Pessoas = {
-    'Nomes': ['Felipe Rodrigues', 'Camarotto'],
-    'Imagem': [fc.load_image_file('Conhecidas/babingoia.jpg'), fc.load_image_file('Conhecidas/Camarotto.jpg')],
-        }
+Pessoas = []
+
+#Pega todas as pessoas que estiverem na pasta de Conhecidas
+for file in os.listdir('Conhecidas/'):
+    Pessoas.append(fc.load_image_file(f'Conhecidas/{file}'))
 
 #Contador de quantas vezes uma pessoa conhecida apareceu na camera
 conhecidos = 0
@@ -16,7 +18,7 @@ try:
     print('Encodando imagens...')
     PessoasCodificadas = []
 
-    for imagem in Pessoas['Imagem']:
+    for imagem in Pessoas:
         PessoasCodificadas.append(fc.face_encodings(imagem)[0])
     print("Imagens encodadas.")
 
@@ -108,11 +110,12 @@ def contarPessoas(frame):
     for i in range(0,len(resultado)):
         if resultado[i] == True:
             conhecidos += 1
+            print('Achei mais uma pessoa conhecida!')
 
 
 #Roda tudo
 capVideo(0)
-print(conhecidos)
+print(f'Eu reconheci {conhecidos} pessoas!q')
 
 #OBS: O unico problema que eu achei é uma queda brutal de fps que tende a aumentar, eu achei um jeito de aumentar isso, mas a precisão cai muito. Essa solução está comentada
 #no inicio da funcao reconhecerImagem()
@@ -120,5 +123,3 @@ print(conhecidos)
 #OBS 2: Ele conta a mesma pessoa diversas vezes em alguns segundos, vou colocar um delay individual de cada pessoa de pelo menos 1 minuto.
 
 #OBS 3: A parte de contar desconhecidos vai ver se a pessoa existe no banco de dados e se não existir vai tirar uma print dela e adicionar um ponto no contador de desconhecidos.Depois vai colocar um delay individual igual o outro.
-
-#OBS 4: Generalizar a lista de conhecidos.
