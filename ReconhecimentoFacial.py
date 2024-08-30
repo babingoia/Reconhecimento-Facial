@@ -12,6 +12,7 @@ for file in os.listdir('Conhecidas/'):
 
 # Contador de quantas vezes uma pessoa conhecida apareceu na camera
 conhecidos = 0
+desconhecidos = 0
 
 # Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o face recognition lê
 try:
@@ -112,11 +113,19 @@ def contar_pessoas(frame):
             if resultado[i]:
                 conhecidos += 1
                 print('Achei mais uma pessoa conhecida!')
+            else:
+                contar_pessoas_desconhecidas()
+
+
+def contar_pessoas_desconhecidas():
+    global desconhecidos
+    print('Achei uma pessoa desconhecida!')
+    desconhecidos += 1
 
 
 # Roda tudo
 cap_video(0)
-print(f'Eu reconheci {conhecidos} pessoas!q')
+print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram desconhecidas.')
 
 # OBS: O unico problema que eu achei é uma queda brutal de fps que tende a aumentar, eu achei um jeito de aumentar
 # isso, mas a precisão cai muito. Essa solução está comentada no inicio da funcao reconhecerImagem()
@@ -126,3 +135,5 @@ print(f'Eu reconheci {conhecidos} pessoas!q')
 
 # OBS 3: A parte de contar desconhecidos vai ver se a pessoa existe no banco de dados e se não existir vai tirar uma
 # print dela e adicionar um ponto no contador de desconhecidos.Depois vai colocar um delay individual igual o outro.
+
+# OBS 4: O contador de pessoas desconhecidas está com o mesmo problema de pessoas conhecidas.
