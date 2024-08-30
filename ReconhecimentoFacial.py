@@ -32,7 +32,7 @@ except:
 def cap_video(video):
     # Pega a camera
     print('Carregando Video...')
-    cap = cv2.VideoCapture(video)
+    cap = cv2.VideoCapture(video, cv2.CAP_DSHOW)
     print('Video Carregado')
 
     while True:
@@ -57,10 +57,10 @@ def cap_video(video):
 # funcao que reconhece as faces e desenha um retangulo envolta
 def reconhecer_imagem(frame):
     # Diminui o tamanho do frame pra agilizar o processamento
-    # framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+    framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
     # Transforma o codigo de cores do frame pra RGB>
-    imagem_rgb = frame[:, :, ::-1]
+    imagem_rgb = framezinho[:, :, ::-1]
 
     # Detecta a posição dos rostos
     coordernadas = fc.face_locations(imagem_rgb)
@@ -74,10 +74,10 @@ def reconhecer_imagem(frame):
         # Passa por todas as pessoas que aparecerem
         for (x, r, y, l) in coordernadas:
             # Pega as coordenadas do canto superior esquerdo, e volta elas ao tamanho normal
-            top = l, x
+            top = l * 4, x * 4
 
             # Pega as coordenadas do canto inferior direito, e volta elas ao tamanho normal
-            bottom = r, y
+            bottom = r * 4, y * 4
 
             # Desenha o retangulo
             image = cv2.rectangle(frame, top, bottom, (255, 0, 0), 5)
