@@ -5,6 +5,7 @@ import os
 
 # Lista de pessoas conhecidas com uma pasta de mesmo nome
 Pessoas = []
+PessoasCodificadas = []
 
 # Pega todas as pessoas que estiverem na pasta de Conhecidas
 for file in os.listdir('Conhecidas/'):
@@ -15,17 +16,20 @@ conhecidos = 0
 desconhecidos = 0
 
 # Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o face recognition lê
-try:
-    print('Encodando imagens...')
-    PessoasCodificadas = []
 
-    for imagem in Pessoas:
-        PessoasCodificadas.append(fc.face_encodings(imagem)[0])
-    print("Imagens encodadas.")
 
-except:
-    print('Imagem não encodada')
-    quit()
+def encodar_conhecidos():
+    try:
+        print('Encodando imagens...')
+        global PessoasCodificadas
+
+        for imagem in Pessoas:
+            PessoasCodificadas.append(fc.face_encodings(imagem)[0])
+        print("Imagens encodadas.")
+
+    except:
+        print('Imagem não encodada')
+        quit()
 
 
 # Funcao de capturar o video
@@ -99,13 +103,13 @@ def contar_pessoas(frame):
 
     # Codigo que encoda o frame do video
     try:
-        frame = fc.face_encodings(frame)
+        frame_encodado = fc.face_encodings(frame)
         print('Frame encodado')
     except:
         print('Frame não encodado')
 
     # Compara a pessoa do frame com o banco de imagem
-    for pessoa in frame:
+    for pessoa in frame_encodado:
         resultado = fc.compare_faces(PessoasCodificadas, pessoa)
 
         # Vê se alguma pessoa do banco bateu com a imagem da camera e adiciona 1 no contador de conhecidos.
@@ -114,18 +118,20 @@ def contar_pessoas(frame):
                 conhecidos += 1
                 print('Achei mais uma pessoa conhecida!')
             else:
-                contar_pessoas_desconhecidas()
+                contar_pessoas_desconhecidas(frame)
 
 
-def contar_pessoas_desconhecidas():
+def contar_pessoas_desconhecidas(frame):
     global desconhecidos
     print('Achei uma pessoa desconhecida!')
     desconhecidos += 1
 
 
 # Roda tudo
+encodar_conhecidos()
 cap_video(0)
-print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram desconhecidas.')
+print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram '
+      f'desconhecidas.')
 
 # OBS: O unico problema que eu achei é uma queda brutal de fps que tende a aumentar, eu achei um jeito de aumentar
 # isso, mas a precisão cai muito. Essa solução está comentada no inicio da funcao reconhecerImagem()
