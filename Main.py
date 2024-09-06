@@ -32,7 +32,7 @@ def encodar_conhecidos():
         for pessoa in Pessoas:
             Pessoas[i].imagem_encodada = fc.face_encodings(pessoa.imagem)
             i += 1
-        print("Imagens encodadas.", Pessoas[0].imagem_encodada)
+        print("Imagens encodadas.")
     except:
         print('Imagem não encodada')
         quit()
@@ -51,6 +51,7 @@ def cap_video(video):
 
         # Detecta um rosto pela funcao 'reconhecerImagem()' e desenha um retangulo envolta dele
         frame = reconhecer_imagem(frame)
+        contar_tempo()
 
         # Mostra a imagem da camera com o retangulo
         cv2.imshow('Teste', frame)
@@ -67,7 +68,7 @@ def cap_video(video):
 # funcao que reconhece as faces e desenha um retangulo envolta
 def reconhecer_imagem(frame):
     image = []
-    # Diminui o tamanho do frame pra agilizar o processamento
+    # Diminui o tamanho do frame para agilizar o processamento
     framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
     # Transforma o codigo de cores do frame pra RGB>
@@ -97,9 +98,14 @@ def reconhecer_imagem(frame):
         return image
 
     else:
-
         # Retorna o frame normal
         return frame
+
+
+def contar_tempo():
+    # Diminui 1 no contador de todos
+    for conhecido in Pessoas:
+        conhecido.contador -= 1
 
 
 # Função que conta quantas pessoas conhecidas e desconhecidas passaram nas cameras
@@ -118,21 +124,21 @@ def contar_pessoas(frame):
 
     # Compara a pessoa do frame com o banco de imagem
     for pessoa in frame_encodado:
-        resultado = fc.compare_faces(Pessoas[i].imagem_encodada, pessoa)
+        for conhecido in Pessoas:
 
-        # Vê se alguma pessoa do banco bateu com a imagem da camera e adiciona 1 no contador de conhecidos.
-        for b in range(0, len(resultado)):
-            if resultado[b]:
-                if Pessoas[i].contador == 0:
-                    conhecidos += 1
-                    Pessoas[i].contador = 10
-                    print('Achei mais uma pessoa conhecida!')
-                elif resultado[b]:
-                    Pessoas[i].contador = 10
+            resultado = fc.compare_faces(conhecido.imagem_encodada, pessoa)
+
+            # Vê se alguma pessoa do banco bateu com a imagem da camera e adiciona 1 no contador de conhecidos.
+            for b in range(0, len(resultado)):
+                if resultado[b]:
+                    if conhecido.contador <= 0:
+                        conhecidos += 1
+                        Pessoas[i].contador = 9000
+                        print('Achei mais uma pessoa conhecida!')
+                    else:
+                        Pessoas[i].contador = 9000
                 else:
-                    Pessoas[i].contador -= 1
-            else:
-                contar_pessoas_desconhecidas(frame)
+                    contar_pessoas_desconhecidas(frame)
 
 
 def contar_pessoas_desconhecidas(frame):
