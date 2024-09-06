@@ -69,10 +69,10 @@ def cap_video(video):
 def reconhecer_imagem(frame):
     image = []
     # Diminui o tamanho do frame para agilizar o processamento
-    framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+    #framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
     # Transforma o codigo de cores do frame pra RGB>
-    imagem_rgb = framezinho[:, :, ::-1]
+    imagem_rgb = frame[:, :, ::-1]
 
     # Detecta a posição dos rostos
     coordernadas = fc.face_locations(imagem_rgb)
@@ -86,10 +86,10 @@ def reconhecer_imagem(frame):
         # Passa por todas as pessoas que aparecerem
         for (x, r, y, l) in coordernadas:
             # Pega as coordenadas do canto superior esquerdo, e volta elas ao tamanho normal
-            top = l * 4, x * 4
+            top = l, x
 
             # Pega as coordenadas do canto inferior direito, e volta elas ao tamanho normal
-            bottom = r * 4, y * 4
+            bottom = r, y
 
             # Desenha o retangulo
             image = cv2.rectangle(frame, top, bottom, (255, 0, 0), 5)
@@ -143,8 +143,14 @@ def contar_pessoas(frame):
 
 def contar_pessoas_desconhecidas(frame):
     global desconhecidos
+    #guardar_desconhecido(frame)
     print('Achei uma pessoa desconhecida!')
     desconhecidos += 1
+
+
+def guardar_desconhecido(frame):
+    global desconhecidos
+    #cv2.imwrite(f'{desconhecidos}.jpg', frame)
 
 
 # Roda tudo
