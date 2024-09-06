@@ -2,36 +2,37 @@
 import cv2
 import face_recognition as fc
 import os
-
-# Listas
-class Pessoa:
-    
-
+import Classes
 
 # Contadores
 conhecidos = 0
 desconhecidos = 0
+Pessoas = []
 
 
 # Pega todas as pessoas que estiverem na pasta de Conhecidas
 def atualizar_lista_conhecidos():
     global Pessoas
+    i = 0
     for file in os.listdir('Conhecidas/'):
-        Pessoas['nome'].append(f'{file}')
-        Pessoas['imagem'].append(fc.load_image_file(f'Conhecidas/{file}'))
-
+        Pessoas.append(Classes.Conhecida('', '', '', '',))
+        Pessoas[i].nome = f'{file}'
+        Pessoas[i].imagem = fc.load_image_file(f'Conhecidas/{file}')
+        i += 1
 
 # Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o 'face recognition' lê
 def encodar_conhecidos():
     global Pessoas
+    i = 0
     atualizar_lista_conhecidos()
 
     try:
         print('Encodando imagens...')
 
-        for imagem in Pessoas['imagem']:
-            Pessoas['imagem_encodada'].append(fc.face_encodings(imagem))
-        print("Imagens encodadas.")
+        for pessoa in Pessoas:
+            Pessoas[i].imagem_encodada = fc.face_encodings(pessoa.imagem)
+            i += 1
+        print("Imagens encodadas.", Pessoas[0].imagem_encodada)
     except:
         print('Imagem não encodada')
         quit()
@@ -105,6 +106,7 @@ def reconhecer_imagem(frame):
 def contar_pessoas(frame):
     # Puxa as variaveis de fora da função
     global Pessoas, conhecidos
+    i = 0
     frame_encodado = []
 
     # Codigo que encoda o frame do video
@@ -116,16 +118,19 @@ def contar_pessoas(frame):
 
     # Compara a pessoa do frame com o banco de imagem
     for pessoa in frame_encodado:
-        print(Pessoas['imagem_encodada'])
-        resultado = fc.compare_faces(Pessoas['imagem_encodada'], pessoa)
+        resultado = fc.compare_faces(Pessoas[i].imagem_encodada, pessoa)
 
         # Vê se alguma pessoa do banco bateu com a imagem da camera e adiciona 1 no contador de conhecidos.
-        for i in range(0, len(resultado)):
-            if resultado[0][i]:
-                if Pessoas['contador'[len(Pessoas['nome'])]] == 0:
+        for b in range(0, len(resultado)):
+            if resultado[b]:
+                if Pessoas[i].contador == 0:
                     conhecidos += 1
-                    Pessoas['contador'].append(10)
+                    Pessoas[i].contador = 10
                     print('Achei mais uma pessoa conhecida!')
+                elif resultado[b]:
+                    Pessoas[i].contador = 10
+                else:
+                    Pessoas[i].contador -= 1
             else:
                 contar_pessoas_desconhecidas(frame)
 
