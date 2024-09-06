@@ -1,4 +1,4 @@
-#Classe de pessoa conhecida
+# Classe que caracteriza uma pessoa conhecida no banco de dados.
 class Conhecida:
     def __init__(self, nome, imagem, imagem_encodada, contador):
         self.nome = ''
