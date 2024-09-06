@@ -2,6 +2,7 @@
 import cv2
 import face_recognition as fc
 import os
+import asyncio
 
 # Lista de pessoas conhecidas com uma pasta de mesmo nome
 Pessoas = []
@@ -18,7 +19,7 @@ desconhecidos = 0
 # Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o face recognition lê
 
 
-def encodar_conhecidos():
+async def encodar_conhecidos():
     try:
         print('Encodando imagens...')
         global PessoasCodificadas
@@ -59,7 +60,7 @@ def cap_video(video):
 
 
 # funcao que reconhece as faces e desenha um retangulo envolta
-def reconhecer_imagem(frame):
+async def reconhecer_imagem(frame):
     # Diminui o tamanho do frame pra agilizar o processamento
     framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
@@ -96,7 +97,7 @@ def reconhecer_imagem(frame):
 
 
 # Função que conta quantas pessoas conhecidas e desconhecidas passaram nas cameras
-def contar_pessoas(frame):
+async def contar_pessoas(frame):
     # Puxa as variaveis de fora da função
     global PessoasCodificadas
     global conhecidos
@@ -121,17 +122,21 @@ def contar_pessoas(frame):
                 contar_pessoas_desconhecidas(frame)
 
 
-def contar_pessoas_desconhecidas(frame):
+async def contar_pessoas_desconhecidas(frame):
     global desconhecidos
     print('Achei uma pessoa desconhecida!')
     desconhecidos += 1
 
 
 # Roda tudo
-encodar_conhecidos()
-cap_video(0)
-print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram '
-      f'desconhecidas.')
+def main():
+    task_encodar = asyncio.create_task(encodar_conhecidos())
+    cap_video(0)
+    print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram '
+          f'desconhecidas.')
+
+
+main()
 
 # OBS: O unico problema que eu achei é uma queda brutal de fps que tende a aumentar, eu achei um jeito de aumentar
 # isso, mas a precisão cai muito. Essa solução está comentada no inicio da funcao reconhecerImagem()
