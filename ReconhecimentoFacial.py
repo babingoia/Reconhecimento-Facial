@@ -2,32 +2,36 @@
 import cv2
 import face_recognition as fc
 import os
-import asyncio
 
-# Lista de pessoas conhecidas com uma pasta de mesmo nome
-Pessoas = []
-PessoasCodificadas = []
+# Listas
+class Pessoa:
+    
 
-# Pega todas as pessoas que estiverem na pasta de Conhecidas
-for file in os.listdir('Conhecidas/'):
-    Pessoas.append(fc.load_image_file(f'Conhecidas/{file}'))
 
-# Contador de quantas vezes uma pessoa conhecida apareceu na camera
+# Contadores
 conhecidos = 0
 desconhecidos = 0
 
-# Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o face recognition lê
+
+# Pega todas as pessoas que estiverem na pasta de Conhecidas
+def atualizar_lista_conhecidos():
+    global Pessoas
+    for file in os.listdir('Conhecidas/'):
+        Pessoas['nome'].append(f'{file}')
+        Pessoas['imagem'].append(fc.load_image_file(f'Conhecidas/{file}'))
 
 
-async def encodar_conhecidos():
+# Bloco que transforma todas as imagens de pessoas conhecidas em um codigo que o 'face recognition' lê
+def encodar_conhecidos():
+    global Pessoas
+    atualizar_lista_conhecidos()
+
     try:
         print('Encodando imagens...')
-        global PessoasCodificadas
 
-        for imagem in Pessoas:
-            PessoasCodificadas.append(fc.face_encodings(imagem)[0])
+        for imagem in Pessoas['imagem']:
+            Pessoas['imagem_encodada'].append(fc.face_encodings(imagem))
         print("Imagens encodadas.")
-
     except:
         print('Imagem não encodada')
         quit()
@@ -60,7 +64,8 @@ def cap_video(video):
 
 
 # funcao que reconhece as faces e desenha um retangulo envolta
-async def reconhecer_imagem(frame):
+def reconhecer_imagem(frame):
+    image = []
     # Diminui o tamanho do frame pra agilizar o processamento
     framezinho = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
@@ -97,10 +102,10 @@ async def reconhecer_imagem(frame):
 
 
 # Função que conta quantas pessoas conhecidas e desconhecidas passaram nas cameras
-async def contar_pessoas(frame):
+def contar_pessoas(frame):
     # Puxa as variaveis de fora da função
-    global PessoasCodificadas
-    global conhecidos
+    global Pessoas, conhecidos
+    frame_encodado = []
 
     # Codigo que encoda o frame do video
     try:
@@ -111,32 +116,32 @@ async def contar_pessoas(frame):
 
     # Compara a pessoa do frame com o banco de imagem
     for pessoa in frame_encodado:
-        resultado = fc.compare_faces(PessoasCodificadas, pessoa)
+        print(Pessoas['imagem_encodada'])
+        resultado = fc.compare_faces(Pessoas['imagem_encodada'], pessoa)
 
         # Vê se alguma pessoa do banco bateu com a imagem da camera e adiciona 1 no contador de conhecidos.
         for i in range(0, len(resultado)):
-            if resultado[i]:
-                conhecidos += 1
-                print('Achei mais uma pessoa conhecida!')
+            if resultado[0][i]:
+                if Pessoas['contador'[len(Pessoas['nome'])]] == 0:
+                    conhecidos += 1
+                    Pessoas['contador'].append(10)
+                    print('Achei mais uma pessoa conhecida!')
             else:
                 contar_pessoas_desconhecidas(frame)
 
 
-async def contar_pessoas_desconhecidas(frame):
+def contar_pessoas_desconhecidas(frame):
     global desconhecidos
     print('Achei uma pessoa desconhecida!')
     desconhecidos += 1
 
 
 # Roda tudo
-def main():
-    task_encodar = asyncio.create_task(encodar_conhecidos())
-    cap_video(0)
-    print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram '
-          f'desconhecidas.')
+encodar_conhecidos()
+cap_video(0)
+print(f'Eu reconheci {conhecidos+desconhecidos} pessoas!, {conhecidos} eram conhecidas e {desconhecidos} eram '
+f'desconhecidas.')
 
-
-main()
 
 # OBS: O unico problema que eu achei é uma queda brutal de fps que tende a aumentar, eu achei um jeito de aumentar
 # isso, mas a precisão cai muito. Essa solução está comentada no inicio da funcao reconhecerImagem()
