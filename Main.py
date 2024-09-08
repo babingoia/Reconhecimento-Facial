@@ -167,3 +167,6 @@ print(f'Eu reconheci {conhecidos + desconhecidos} pessoas!, {conhecidos} eram co
 # OBS: O programa ainda está super lento por conta da quantidade de codigo sendo executado entre os frames.
 
 # OBS 2: O contador de desconhecidos ainda não funciona.
+
+# OBS 3: Se a função de atualizar pessoas precisar ser executada de novo ela vai recolocar/excluir as pessoas que já
+# existem.
