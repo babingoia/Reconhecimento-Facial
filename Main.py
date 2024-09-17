@@ -11,7 +11,6 @@ desconhecidos = 0
 # Listas
 Pessoas = []
 
-
 # Pega todas as pessoas que estiverem na pasta de Conhecidas e armzena na lista Pessoas
 def atualizar_lista_conhecidos():
     global Pessoas
